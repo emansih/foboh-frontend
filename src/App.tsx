@@ -7,7 +7,7 @@ const adjustmentTypes = ["Fixed ($)", "Dynamic (%)"];
 const categoryArray = ["Wine", "Beer", "Liquor & Spirits", "Cider", "Premixed & Ready-to-Drink", "Other"]; 
 const segmentArray = ["Red", "White", "Rose", "Orange", "Sparkling", "Port/Dessert"]
 const brandsArray = ["High Garden", "Koyama Wines", "Lacourte-Godbillon"]
-const basedOnArray = ["Based on Price"]
+const basedOnArray = ["Global wholesale price"]
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,7 +18,7 @@ function App() {
   const [category, setCategory] = useState<string>("");
   const [segment, setSegment] = useState<string>("");
   const [brand, setBrand] = useState<string>("");
-  const [basedOn, setBasedOn] = useState<string>("Based on Price")
+  const [basedOn, setBasedOn] = useState<string>("Global wholesale price")
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
