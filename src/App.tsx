@@ -4,9 +4,10 @@ import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer
 import { Product } from "./model/Product";
 
 const adjustmentTypes = ["Fixed ($)", "Dynamic (%)"];
-const categories = ["Wine", "Beer", "Liquor & Spirits", "Cider", "Premixed & Ready-to-Drink", "Other"]; 
-const segments = ["Red", "White", "Rose", "Orange", "Sparkling", "Port/Dessert"]
-const brands = ["High Garden", "Koyama Wines", "Lacourte-Godbillon"]
+const categoryArray = ["Wine", "Beer", "Liquor & Spirits", "Cider", "Premixed & Ready-to-Drink", "Other"]; 
+const segmentArray = ["Red", "White", "Rose", "Orange", "Sparkling", "Port/Dessert"]
+const brandsArray = ["High Garden", "Koyama Wines", "Lacourte-Godbillon"]
+const basedOnArray = ["Based on Price"]
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +18,7 @@ function App() {
   const [category, setCategory] = useState<string>("");
   const [segment, setSegment] = useState<string>("");
   const [brand, setBrand] = useState<string>("");
+  const [basedOn, setBasedOn] = useState<string>("Based on Price")
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -82,7 +84,7 @@ function App() {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
-                {categories.map((cat) => (
+                {categoryArray.map((cat) => (
                   <MenuItem key={cat} value={cat}>
                     {cat}
                   </MenuItem>
@@ -97,7 +99,7 @@ function App() {
                 value={segment}
                 onChange={(e) => setSegment(e.target.value)}
               >
-                {segments.map((seg) => (
+                {segmentArray.map((seg) => (
                   <MenuItem key={seg} value={seg}>
                     {seg}
                   </MenuItem>
@@ -111,18 +113,32 @@ function App() {
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
               >
-                {brands.map((productBrand) => (
+                {brandsArray.map((productBrand) => (
                   <MenuItem key={productBrand} value={productBrand}>
                     {productBrand}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-
-
             </Box>
 
-            
+            <Typography variant="h6">
+              Based On
+            </Typography>
+            <FormControl variant="outlined">
+              <Select
+                value={basedOn}
+                onChange={(e) => setBasedOn(e.target.value)}>
+                {basedOnArray.map((based) => (
+                  <MenuItem key={based} value={based}>
+                    {based}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+
+
             <Typography variant="h6">
               Set Price Adjustment Mode
             </Typography>
@@ -143,6 +159,12 @@ function App() {
               </RadioGroup>
             </FormControl>
            
+
+            <Typography variant="h6">
+              The adjusted price will be calculated from {basedOn} selected above
+            </Typography>
+
+
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
