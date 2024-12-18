@@ -16,22 +16,16 @@ function App() {
   const [search, setSearch] = useState("");
   const [adjustmentValue, setAdjustmentValue] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [segment, setSegment] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedSegment, setSelectedSegment] = useState<string>("");
 
   const [basedOn, setBasedOn] = useState<string>("Global wholesale price")
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    subcategory: "",
-    brand: "",
-    segment: "",
-  });
   const [pricingProfile, setPricingProfile] = useState<string>("global");
   const [adjustmentType, setAdjustmentType] = useState<"Fixed" | "Dynamic">("Fixed");
   const [incrementType, setIncrementType] = useState<"Increase" | "Decrease">("Increase");
   const [adjustedPrices, setAdjustedPrices] = useState<Record<string, string>>({}); 
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedFilteredProducts, setSelectedFilteredProducts] = useState<Product[]>([]);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.checked;
@@ -62,8 +56,12 @@ function App() {
     }
   };
 
-  const toggleProductSelection = (id: string) => {
-   
+  const toggleProductSelection = (product: Product) => {
+    if(selectedFilteredProducts.includes(product)){
+      setSelectedFilteredProducts((oldArray) => oldArray.filter((p) => p !== product));
+    } else {
+      setSelectedFilteredProducts(oldArray => [...oldArray, product])
+    }
   };
 
   const handleChange = (event: { target: { value: string[]; }; }) => {
@@ -173,7 +171,28 @@ function App() {
             </FormControl>
             </Box>
 
-            <Typography variant="h6">
+
+          <TableContainer component={Paper}>
+            <Table>
+              <TableBody>
+                {filteredProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        onChange={() => toggleProductSelection(product)}
+                      />
+                    </TableCell>
+                    <strong>{product.title}</strong>
+                    <br />
+                    SKU {product.sku}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+
+          <Typography variant="h6">
               Based On
             </Typography>
             <FormControl variant="outlined">
@@ -215,32 +234,37 @@ function App() {
               The adjusted price will be calculated from {basedOn} selected above
             </Typography>
 
-
-          <TableContainer component={Paper}>
+            <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell padding="checkbox">
-                    <Checkbox onChange={handleSelectAll} />
-                  </TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>SKU</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Subcategory</TableCell>
+                  <TableCell>Base Price</TableCell>
+                  <TableCell>New Price</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredProducts.map((product) => (
+                {selectedFilteredProducts.map((product) => (
                   <TableRow key={product.id}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        onChange={() => toggleProductSelection(product.id)}
-                      />
+                    <TableCell>{product.title}</TableCell>
+                    <TableCell>{product.sku}</TableCell>
+                    <TableCell>{product.category}</TableCell>
+                    <TableCell>{product.subcategory}</TableCell>
+                    <TableCell>${(product.globalWholesalePrice / 100).toFixed(2)}</TableCell>
+                    <TableCell>
+                    {adjustedPrices[product.id]
+                    ? `$${adjustedPrices[product.id]}`
+                    : "No Adjustments"}
                     </TableCell>
-                    <strong>{product.title}</strong>
-                    <br />
-                    SKU {product.sku}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
+
           <Box display="flex" justifyContent="flex-end" mt={3}>
             <Button variant="contained" color="primary">
               Next
