@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
   FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, ListItemText } from "@mui/material";
 import { Product } from "./model/Product";
-import { getProducts } from "./FobohClient";
+import { getProducts, searchProduct } from "./FobohClient";
 
 const adjustmentTypes = ["Fixed ($)", "Dynamic (%)"];
 const basedOnArray = ["Global wholesale price"]
@@ -54,18 +54,12 @@ function App() {
     fetchProducts();
   }, []);
 
-  const handleSearch = () => {
-    const filtered = products.filter((product) => {
-      const matchesSearch =
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesFilters =
-        (!filters.subcategory || product.subcategory === filters.subcategory) &&
-        (!filters.segment || product.segment === filters.segment) &&
-        (!filters.brand || product.brand === filters.brand);
-      return matchesSearch && matchesFilters;
-    });
-    setFilteredProducts(filtered);
+  const handleSearch = async (searchQuery: string) => {
+    setSearch(searchQuery)
+    if(searchQuery != ''){
+      const product = await searchProduct(searchQuery)
+      setFilteredProducts(product)  
+    }
   };
 
   const toggleProductSelection = (id: string) => {
@@ -108,7 +102,7 @@ function App() {
           <TextField
               label="Search"
               value={search}
-              onChange={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
               margin="normal"
               fullWidth
             />
