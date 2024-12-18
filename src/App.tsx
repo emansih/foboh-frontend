@@ -253,7 +253,7 @@ function App() {
                     <TableCell>{product.sku}</TableCell>
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.subcategory}</TableCell>
-                    <TableCell>${(product.globalWholesalePrice / 100).toFixed(2)}</TableCell>
+                    <TableCell>${product.globalWholesalePrice}</TableCell>
                     <TableCell>
                     {adjustedPrices[product.id]
                     ? `$${adjustedPrices[product.id]}`
