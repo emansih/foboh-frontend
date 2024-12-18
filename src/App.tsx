@@ -1,38 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
-  FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, Container} from "@mui/material";
+  FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, ListItemText } from "@mui/material";
 import { Product } from "./model/Product";
+import { getProducts } from "./FobohClient";
 
 const adjustmentTypes = ["Fixed ($)", "Dynamic (%)"];
+const basedOnArray = ["Global wholesale price"]
 const categoryArray = ["Wine", "Beer", "Liquor & Spirits", "Cider", "Premixed & Ready-to-Drink", "Other"]; 
 const segmentArray = ["Red", "White", "Rose", "Orange", "Sparkling", "Port/Dessert"]
 const brandsArray = ["High Garden", "Koyama Wines", "Lacourte-Godbillon"]
-const basedOnArray = ["Global wholesale price"]
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
-  const [adjustmentType, setAdjustmentType] = useState<string>("Fixed");
   const [adjustmentValue, setAdjustmentValue] = useState<number>(0);
-  const [category, setCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [segment, setSegment] = useState<string>("");
-  const [brand, setBrand] = useState<string>("");
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [basedOn, setBasedOn] = useState<string>("Global wholesale price")
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    setFilteredProducts(
-      products.filter(
-        (product) =>
-          product.title.toLowerCase().includes(value.toLowerCase()) ||
-          product.sku.toLowerCase().includes(value.toLowerCase()) ||
-          product.category.toLowerCase().includes(value.toLowerCase()) ||
-          product.subcategory.toLowerCase().includes(value.toLowerCase())
-      )
-    );
-  };
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    category: "",
+    subcategory: "",
+    brand: "",
+    segment: "",
+  });
+  const [pricingProfile, setPricingProfile] = useState<string>("global");
+  const [adjustmentType, setAdjustmentType] = useState<"Fixed" | "Dynamic">("Fixed");
+  const [incrementType, setIncrementType] = useState<"Increase" | "Decrease">("Increase");
+  const [adjustedPrices, setAdjustedPrices] = useState<Record<string, string>>({}); 
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.checked;
@@ -41,26 +39,42 @@ function App() {
     );
   };
 
-  const handleSelect = (id: number) => {
-    setFilteredProducts((prev) =>
-      prev.map((product) =>
-        product.id === id ? { ...product, selected: !product.selected } : product
-      )
-    );
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const products = await getProducts()
+        setProducts(products)
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleSearch = () => {
+    const filtered = products.filter((product) => {
+      const matchesSearch =
+        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFilters =
+        (!filters.category || product.category === filters.category) &&
+        (!filters.subcategory || product.subcategory === filters.subcategory) &&
+        (!filters.segment || product.segment === filters.segment) &&
+        (!filters.brand || product.brand === filters.brand);
+      return matchesSearch && matchesFilters;
+    });
+    setFilteredProducts(filtered);
   };
 
-  const handleApplyAdjustments = () => {
-    const updatedProducts = filteredProducts.map((product) => {
-      if (product.selected) {
-        const newPrice =
-          adjustmentType === "Fixed"
-            ? product.basePrice + adjustmentValue
-            : product.basePrice * (1 + adjustmentValue / 100);
-        return { ...product, newPrice: newPrice.toFixed(2) };
-      }
-      return product;
-    });
-    setFilteredProducts(updatedProducts);
+  const toggleProductSelection = (id: string) => {
+   
+  };
+
+  const handleChange = (event: { target: { value: any; }; }) => {
+    const { value } = event.target;
+    setSelectedProducts(value);
   };
 
   return (
@@ -77,12 +91,34 @@ function App() {
               margin="normal"
               fullWidth
             />
-            
+
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Products</InputLabel>
+                <Select
+                  multiple
+                  value={selectedProducts}
+                  onChange={handleChange}
+                  renderValue={(selected) =>
+                    products
+                      .filter((product) => selected.includes(product.id))
+                      .map((product) => product.title)
+                      .join(", ")
+                  }>
+                  {products.map((product) => (
+                    <MenuItem key={product.id} value={product.id}>
+                      <Checkbox checked={selectedProducts.includes(product.id)} />
+                      <ListItemText primary={product.title} />
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+
+                        
             <FormControl fullWidth variant="outlined">
               <InputLabel>Category</InputLabel>
               <Select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 {categoryArray.map((cat) => (
                   <MenuItem key={cat} value={cat}>
@@ -110,8 +146,8 @@ function App() {
             <FormControl fullWidth variant="outlined">
               <InputLabel>Brand</InputLabel>
               <Select
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
               >
                 {brandsArray.map((productBrand) => (
                   <MenuItem key={productBrand} value={productBrand}>
@@ -146,7 +182,7 @@ function App() {
               <RadioGroup
                 row
                 value={adjustmentType}
-                onChange={(e) => setAdjustmentType(e.target.value)}>
+                onChange={(e) => setAdjustmentType(e.target.value as "Fixed" | "Dynamic")}>
 
                 {adjustmentTypes.map((type) => (
                   <FormControlLabel
@@ -185,17 +221,18 @@ function App() {
                   <TableRow key={product.id}>
                     <TableCell padding="checkbox">
                       <Checkbox
-                        checked={product.selected || false}
-                        onChange={() => handleSelect(product.id)}
+                        onChange={() => toggleProductSelection(product.id)}
                       />
                     </TableCell>
                     <TableCell>{product.title}</TableCell>
                     <TableCell>{product.sku}</TableCell>
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.subcategory}</TableCell>
-                    <TableCell>${product.basePrice.toFixed(2)}</TableCell>
+                    <TableCell>${(product.globalWholesalePrice / 100).toFixed(2)}</TableCell>
                     <TableCell>
-                      {product.newPrice ? `$${product.newPrice}` : "-"}
+                    {adjustedPrices[product.id]
+                    ? `$${adjustedPrices[product.id]}`
+                    : "No Adjustments"}
                     </TableCell>
                   </TableRow>
                 ))}

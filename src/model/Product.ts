@@ -1,11 +1,11 @@
 export type Product = {
-  id: number;
+  id: string;
   title: string;
   sku: string;
   category: string;
   subcategory: string;
-  basePrice: number;
-  selected?: boolean;
-  newPrice?: string; 
-
+  segment: string;
+  brand: string;
+  // Stored in cents, displayed in dollars
+  globalWholesalePrice: number; 
 };
