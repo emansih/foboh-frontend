@@ -4,7 +4,7 @@ export type Product = {
   sku: string;
   category: string;
   subcategory: string;
-  segment: string;
+  segmentId: string;
   brand: string;
   // Stored in cents, displayed in dollars
   globalWholesalePrice: number; 

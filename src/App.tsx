@@ -86,6 +86,18 @@ function App() {
     setFilteredProducts(updatedCategoryFilter)
   }
 
+  const handleSegmentChange = (segmentValue: string) => {
+    setSelectedSegment(segmentValue)
+    const updatedSegmentFilter = filteredProducts.filter(product => product.segmentId == segmentValue)
+    setFilteredProducts(updatedSegmentFilter)
+  }
+
+  const handleBrandChange = (brandValue: string) => {
+    setSelectedBrand(brandValue)
+    const updatedBrandFilter = filteredProducts.filter(product => product.brand == brandValue)
+    setFilteredProducts(updatedBrandFilter)
+  }
+
   return (
     <Box sx={{ display: "flex" }}>
       <Box
@@ -141,8 +153,8 @@ function App() {
             <FormControl fullWidth variant="outlined">
               <InputLabel>Segment</InputLabel>
               <Select
-                value={segment}
-                onChange={(e) => setSegment(e.target.value)}
+                value={selectedSegment}
+                onChange={(e) => handleSegmentChange(e.target.value)}
               >
                 {segmentArray.map((seg) => (
                   <MenuItem key={seg} value={seg}>
@@ -156,7 +168,7 @@ function App() {
               <InputLabel>Brand</InputLabel>
               <Select
                 value={selectedBrand}
-                onChange={(e) => setSelectedBrand(e.target.value)}
+                onChange={(e) => handleBrandChange(e.target.value)}
               >
                 {brandsArray.map((productBrand) => (
                   <MenuItem key={productBrand} value={productBrand}>
