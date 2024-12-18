@@ -1,6 +1,7 @@
 import axios from "axios";
 import { FOBOH_BACKEND_URL } from "./Constants";
 import { Product } from "./model/Product";
+import { AdjustmentResponse } from "./model/AdjustmentResponse";
 
 
 export async function getProducts(){
@@ -15,11 +16,12 @@ export async function searchProduct(searchQuery: string){
     return request.data as Product[]
 }
 
-export async function adjustPrice(adjustmentMode: string, adjustmentType: string, productsToBeAdjusted: { id: string; adjustment: number }[]){
+export async function adjustPrice(incrementType: "Fixed" | "Dynamic", adjustmentType: "Increase" | "Decrease", 
+    productsToBeAdjusted: { id: string; adjustment: number }[]){
     const request = await axios.post(`${FOBOH_BACKEND_URL}/pricing/calculate`, {
-        'adjustmentMode': adjustmentMode,
+        'incrementType': incrementType,
         'adjustmentType': adjustmentType,
         'productsToBeAdjusted': productsToBeAdjusted
     })
-    return request.data as Product[]
+    return request.data as AdjustmentResponse[]
 }

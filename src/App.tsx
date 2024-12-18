@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
   FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, ListItemText } from "@mui/material";
 import { Product } from "./model/Product";
-import { getProducts, searchProduct } from "./FobohClient";
+import { adjustPrice, getProducts, searchProduct } from "./FobohClient";
 
 const adjustmentTypes = [{
   "id": "Fixed",
@@ -117,7 +117,7 @@ function App() {
   };
 
   
-  const submitAdjustmentChange = () => {
+  const submitAdjustmentChange = async () => {
     const productsToBeAdjusted: { id: string; adjustment: number }[] = []
     adjustedPrices.map(value => {
       const userDefinedPrice = value.adjustment
@@ -128,14 +128,32 @@ function App() {
         })
       }
     })
-
+    const response = await adjustPrice(adjustmentType, incrementType, productsToBeAdjusted);
+    const updatedProducts = filteredProducts.map((product) => {
+      const adjustmentResponse = response.find((item) => item.id === product.id);
+      if (adjustmentResponse) {
+        return {
+          ...product,
+          newWholeSalePrice: adjustmentResponse.newWholeSalePrice,
+        };
+      }
+      return product;
+    });
+    setFilteredProducts(updatedProducts);
   }
     
   const getAdjustmentValue = (productId: string): string => {
-    console.log(adjustedPrices)
     const adjustment = adjustedPrices.find((item) => item.id === productId);
     return adjustment ? adjustment.adjustment.toString() : "";
   };
+
+  const adjustedPrice = (price: number | undefined) => {
+    if(price){
+      return `${(price / 100).toFixed(2)}`
+    } else {
+      return "No Adjusted Price"
+    }
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -268,7 +286,7 @@ function App() {
                 {adjustmentTypes.map((type) => (
                   <FormControlLabel
                     key={type.id}
-                    value={type.adjustmentTypes}
+                    value={type.id}
                     control={<Radio />}
                     label={type.adjustmentTypes}
                   />
@@ -287,7 +305,7 @@ function App() {
                 {adjustmentIncrementType.map((type) => (
                   <FormControlLabel
                     key={type.id}
-                    value={type.adjustmentMode}
+                    value={type.id}
                     control={<Radio />}
                     label={type.adjustmentMode}
                   />
@@ -310,6 +328,7 @@ function App() {
                   <TableCell>Subcategory</TableCell>
                   <TableCell>Based On Price</TableCell>
                   <TableCell>Adjustment</TableCell>
+                  <TableCell>New Price</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -328,6 +347,7 @@ function App() {
                          type="number"
                          />
                     </TableCell>
+                    <TableCell>{adjustedPrice(product.newWholeSalePrice)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

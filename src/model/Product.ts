@@ -7,5 +7,6 @@ export type Product = {
   segmentId: string;
   brand: string;
   // Stored in cents, displayed in dollars
-  globalWholesalePrice: number; 
+  globalWholesalePrice: number;
+  newWholeSalePrice: number | undefined;
 };
