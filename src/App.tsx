@@ -72,9 +72,11 @@ function App() {
    
   };
 
-  const handleChange = (event: { target: { value: any; }; }) => {
+  const handleChange = (event: { target: { value: string[]; }; }) => {
     const { value } = event.target;
     setSelectedProducts(value);
+    const filteredProducts = products.filter(product => value.includes(product.id));
+    setFilteredProducts(filteredProducts)
   };
 
   return (
