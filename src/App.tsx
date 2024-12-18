@@ -223,12 +223,6 @@ function App() {
                   <TableCell padding="checkbox">
                     <Checkbox onChange={handleSelectAll} />
                   </TableCell>
-                  <TableCell>Title</TableCell>
-                  <TableCell>SKU</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Subcategory</TableCell>
-                  <TableCell>Base Price</TableCell>
-                  <TableCell>New Price</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -239,16 +233,9 @@ function App() {
                         onChange={() => toggleProductSelection(product.id)}
                       />
                     </TableCell>
-                    <TableCell>{product.title}</TableCell>
-                    <TableCell>{product.sku}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell>{product.subcategory}</TableCell>
-                    <TableCell>${(product.globalWholesalePrice / 100).toFixed(2)}</TableCell>
-                    <TableCell>
-                    {adjustedPrices[product.id]
-                    ? `$${adjustedPrices[product.id]}`
-                    : "No Adjustments"}
-                    </TableCell>
+                    <strong>{product.title}</strong>
+                    <br />
+                    SKU {product.sku}
                   </TableRow>
                 ))}
               </TableBody>
