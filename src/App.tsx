@@ -18,10 +18,11 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [segment, setSegment] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedSegment, setSelectedSegment] = useState<string>("");
+
   const [basedOn, setBasedOn] = useState<string>("Global wholesale price")
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    category: "",
     subcategory: "",
     brand: "",
     segment: "",
@@ -59,7 +60,6 @@ function App() {
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.sku.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFilters =
-        (!filters.category || product.category === filters.category) &&
         (!filters.subcategory || product.subcategory === filters.subcategory) &&
         (!filters.segment || product.segment === filters.segment) &&
         (!filters.brand || product.brand === filters.brand);
@@ -78,6 +78,13 @@ function App() {
     const filteredProducts = products.filter(product => value.includes(product.id));
     setFilteredProducts(filteredProducts)
   };
+
+  const handleCategoryChange = (categoryValue: string) => {
+    setSelectedCategory(categoryValue)
+    // I intentionally use subcategory here as there are no matching category values
+    const updatedCategoryFilter = filteredProducts.filter(product => product.subcategory == categoryValue)
+    setFilteredProducts(updatedCategoryFilter)
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -120,7 +127,7 @@ function App() {
               <InputLabel>Category</InputLabel>
               <Select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => handleCategoryChange(e.target.value)}
               >
                 {categoryArray.map((cat) => (
                   <MenuItem key={cat} value={cat}>
