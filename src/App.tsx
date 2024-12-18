@@ -4,7 +4,22 @@ import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer
 import { Product } from "./model/Product";
 import { getProducts, searchProduct } from "./FobohClient";
 
-const adjustmentTypes = ["Fixed ($)", "Dynamic (%)"];
+const adjustmentTypes = [{
+  "id": "Fixed",
+  "adjustmentTypes": "Fixed ($)"
+}, {
+  "id": "Dynamic",
+  "adjustmentTypes": "Dynamic (%)"
+}];
+
+const adjustmentIncrementType = [{
+  "id": "Increase",
+  "adjustmentMode": "Increase +"
+}, {
+  "id": "Decrease",
+  "adjustmentMode": "Decrease -"
+}]
+
 const basedOnArray = ["Global wholesale price"]
 const categoryArray = ["Wine", "Beer", "Liquor & Spirits", "Cider", "Premixed & Ready-to-Drink", "Other"]; 
 const segmentArray = ["Red", "White", "Rose", "Orange", "Sparkling", "Port/Dessert"]
@@ -14,16 +29,14 @@ function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
-  const [adjustmentValue, setAdjustmentValue] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedSegment, setSelectedSegment] = useState<string>("");
 
   const [basedOn, setBasedOn] = useState<string>("Global wholesale price")
-  const [pricingProfile, setPricingProfile] = useState<string>("global");
   const [adjustmentType, setAdjustmentType] = useState<"Fixed" | "Dynamic">("Fixed");
   const [incrementType, setIncrementType] = useState<"Increase" | "Decrease">("Increase");
-  const [adjustedPrices, setAdjustedPrices] = useState<Record<string, string>>({}); 
+  const [adjustedPrices, setAdjustedPrices] = useState<{ id: string; adjustment: number }[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectedFilteredProducts, setSelectedFilteredProducts] = useState<Product[]>([]);
 
@@ -89,6 +102,40 @@ function App() {
     const updatedBrandFilter = filteredProducts.filter(product => product.brand == brandValue)
     setFilteredProducts(updatedBrandFilter)
   }
+
+  const handleAdjustmentChange = (productId: string, value: string) => {
+    setAdjustedPrices((prev) => {
+      const existingIndex = prev.findIndex((item) => item.id === productId);
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        updated[existingIndex].adjustment = +value;
+        return updated;
+      } else {        
+        return [...prev, { id: productId, adjustment: +value }];
+      }
+    });
+  };
+
+  
+  const submitAdjustmentChange = () => {
+    const productsToBeAdjusted: { id: string; adjustment: number }[] = []
+    adjustedPrices.map(value => {
+      const userDefinedPrice = value.adjustment
+      if(userDefinedPrice > 0){
+        productsToBeAdjusted.push({
+          id: value.id,
+          adjustment: userDefinedPrice
+        })
+      }
+    })
+
+  }
+    
+  const getAdjustmentValue = (productId: string): string => {
+    console.log(adjustedPrices)
+    const adjustment = adjustedPrices.find((item) => item.id === productId);
+    return adjustment ? adjustment.adjustment.toString() : "";
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -209,7 +256,7 @@ function App() {
 
 
 
-            <Typography variant="h6">
+            <Typography variant="subtitle1">
               Set Price Adjustment Mode
             </Typography>
             <FormControl component="fieldset">
@@ -220,10 +267,29 @@ function App() {
 
                 {adjustmentTypes.map((type) => (
                   <FormControlLabel
-                    key={type}
-                    value={type}
+                    key={type.id}
+                    value={type.adjustmentTypes}
                     control={<Radio />}
-                    label={type}
+                    label={type.adjustmentTypes}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
+
+            <Typography variant="subtitle1">
+              Set Price Adjustment Increment Mode
+            </Typography>
+            <FormControl component="fieldset">
+              <RadioGroup
+                row
+                value={incrementType}
+                onChange={(e) => setIncrementType(e.target.value as "Increase" | "Decrease")}>
+                {adjustmentIncrementType.map((type) => (
+                  <FormControlLabel
+                    key={type.id}
+                    value={type.adjustmentMode}
+                    control={<Radio />}
+                    label={type.adjustmentMode}
                   />
                 ))}
               </RadioGroup>
@@ -242,8 +308,8 @@ function App() {
                   <TableCell>SKU</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Subcategory</TableCell>
-                  <TableCell>Base Price</TableCell>
-                  <TableCell>New Price</TableCell>
+                  <TableCell>Based On Price</TableCell>
+                  <TableCell>Adjustment</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -255,9 +321,12 @@ function App() {
                     <TableCell>{product.subcategory}</TableCell>
                     <TableCell>${product.globalWholesalePrice}</TableCell>
                     <TableCell>
-                    {adjustedPrices[product.id]
-                    ? `$${adjustedPrices[product.id]}`
-                    : "No Adjustments"}
+                      <TextField
+                         label="Adjustment"
+                         value={getAdjustmentValue(product.id)} 
+                         onChange={(e) => handleAdjustmentChange(product.id, e.target.value)}
+                         type="number"
+                         />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -266,7 +335,7 @@ function App() {
           </TableContainer>
 
           <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button variant="contained" color="primary">
+            <Button variant="contained" onClick={submitAdjustmentChange} color="primary">
               Next
             </Button>
           </Box>

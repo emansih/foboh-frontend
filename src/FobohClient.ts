@@ -14,3 +14,12 @@ export async function searchProduct(searchQuery: string){
     })
     return request.data as Product[]
 }
+
+export async function adjustPrice(adjustmentMode: string, adjustmentType: string, productsToBeAdjusted: { id: string; adjustment: number }[]){
+    const request = await axios.post(`${FOBOH_BACKEND_URL}/pricing/calculate`, {
+        'adjustmentMode': adjustmentMode,
+        'adjustmentType': adjustmentType,
+        'productsToBeAdjusted': productsToBeAdjusted
+    })
+    return request.data as Product[]
+}
