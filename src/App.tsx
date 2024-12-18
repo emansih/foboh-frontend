@@ -139,7 +139,7 @@ function App() {
       }
       return product;
     });
-    setFilteredProducts(updatedProducts);
+    setSelectedFilteredProducts(updatedProducts);
   }
     
   const getAdjustmentValue = (productId: string): string => {
@@ -148,8 +148,9 @@ function App() {
   };
 
   const adjustedPrice = (price: number | undefined) => {
+    console.log(`adjusted ${price}`)
     if(price){
-      return `${(price / 100).toFixed(2)}`
+      return `$${(price / 100).toFixed(2)}`
     } else {
       return "No Adjusted Price"
     }
