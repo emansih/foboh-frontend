@@ -30,7 +30,7 @@ Make sure the backend application is also running!
 
 - I did not use enums for adjustment modes and types, instead I use strings. This could be improved. 
 
-- The backend URL is hardcoded to localhost(located in Constants.ts), in a production environment this is a bad idea. Instead, the code should be looking for a system environment variable as local dev environment will be different from remote environment. 
+- The backend URL is hardcoded(located in Constants.ts), in a production environment this is a bad idea. Instead, the code should be looking for a system environment variable as local dev environment will be different from remote environment. 
 
 - I did not use Jest for unit testing, I manually tested the UI. In the future, I could also use puppeteer / Selenium for testing the UI behaviors. 
 

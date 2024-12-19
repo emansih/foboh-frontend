@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
-  FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, ListItemText } from "@mui/material";
+  FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, ListItemText, 
+  SelectChangeEvent} from "@mui/material";
 import { Product } from "./model/Product";
 import { adjustPrice, getProducts, searchProduct } from "./FobohClient";
 import { adjustmentIncrementType, adjustmentTypes, basedOnArray, brandsArray, categoryArray, segmentArray } from "./Constants";
@@ -49,8 +50,8 @@ function App() {
     }
   };
 
-  const handleChange = (event: { target: { value: string[]; }; }) => {
-    const { value } = event.target;
+  const handleChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value as unknown as string[];
     setSelectedProducts(value);
     const filteredProducts = products.filter(product => value.includes(product.id));
     setFilteredProducts(filteredProducts)
