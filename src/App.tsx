@@ -3,27 +3,7 @@ import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer
   FormControl, InputLabel, Select, MenuItem, Button, RadioGroup, FormControlLabel, Radio, ListItemText } from "@mui/material";
 import { Product } from "./model/Product";
 import { adjustPrice, getProducts, searchProduct } from "./FobohClient";
-
-const adjustmentTypes = [{
-  "id": "Fixed",
-  "adjustmentTypes": "Fixed ($)"
-}, {
-  "id": "Dynamic",
-  "adjustmentTypes": "Dynamic (%)"
-}];
-
-const adjustmentIncrementType = [{
-  "id": "Increase",
-  "adjustmentMode": "Increase +"
-}, {
-  "id": "Decrease",
-  "adjustmentMode": "Decrease -"
-}]
-
-const basedOnArray = ["Global wholesale price"]
-const categoryArray = ["Wine", "Beer", "Liquor & Spirits", "Cider", "Premixed & Ready-to-Drink", "Other"]; 
-const segmentArray = ["Red", "White", "Rose", "Orange", "Sparkling", "Port/Dessert"]
-const brandsArray = ["High Garden", "Koyama Wines", "Lacourte-Godbillon"]
+import { adjustmentIncrementType, adjustmentTypes, basedOnArray, brandsArray, categoryArray, segmentArray } from "./Constants";
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -148,7 +128,6 @@ function App() {
   };
 
   const adjustedPrice = (price: number | undefined) => {
-    console.log(`adjusted ${price}`)
     if(price){
       return `$${(price / 100).toFixed(2)}`
     } else {
