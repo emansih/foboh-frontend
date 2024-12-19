@@ -19,15 +19,7 @@ function App() {
   const [adjustedPrices, setAdjustedPrices] = useState<{ id: string; adjustment: number }[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectedFilteredProducts, setSelectedFilteredProducts] = useState<Product[]>([]);
-
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.checked;
-    setFilteredProducts((prev) =>
-      prev.map((product) => ({ ...product, selected }))
-    );
-  };
-
-
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
