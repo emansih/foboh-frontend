@@ -1,7 +1,7 @@
 
 
 // This should be in environment variable but it works for now
-export const FOBOH_BACKEND_URL = "http://foboh-backend.vercel.app/api/v1"
+export const FOBOH_BACKEND_URL = "https://foboh-backend.vercel.app/api/v1"
 
 // Values from the table on confluence 
 export const adjustmentTypes = [{
